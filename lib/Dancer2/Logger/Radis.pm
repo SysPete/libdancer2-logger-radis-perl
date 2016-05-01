@@ -4,8 +4,8 @@ package Dancer2::Logger::Radis;
 
 # ABSTRACT: Dancer2 logger engine for Log::Radis
 
-use Moo;
-use Log::Radis;
+use Moo 2;
+use Log::Radis 0.002;
 use Devel::StackTrace;
 
 with 'Dancer2::Core::Role::Logger';
