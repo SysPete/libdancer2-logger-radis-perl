@@ -91,13 +91,14 @@ has __mock => (
 
 has _radis => (
     is => 'lazy',
-    builder => sub {
+    builder => sub
+    {
         my $self = shift;
         my %opts = (
-            server => $self->server,
-            reconnect => $self->reconnect,
-            every => $self->every,
-            queue => $self->queue,
+            server      => $self->server,
+            reconnect   => $self->reconnect,
+            every       => $self->every,
+            queue       => $self->queue,
         );
         if ($self->__mock) {
             $opts{redis} = $self->__mock;
@@ -116,7 +117,8 @@ Nothing special, just like you'd expect.
 
 =cut
 
-sub log {
+sub log
+{
     my $self = shift;
     my ($level, $message) = @_;
 
