@@ -6,7 +6,6 @@ package Dancer2::Logger::Radis;
 
 use Moo 2;
 use Log::Radis 0.002;
-use Devel::StackTrace;
 
 with 'Dancer2::Core::Role::Logger';
 
@@ -120,7 +119,6 @@ Nothing special, just like you'd expect.
 sub log {
     my $self = shift;
     my ($level, $message) = @_;
-    my $caller = Devel::StackTrace->new->frame(5);
 
 =head1 GELF MESSAGE
 
@@ -130,9 +128,6 @@ The log message cannot be formatted like described at L<Dancer2::Core::Role::Log
     -------------------------------+-----------
     $$                             | _pid
     $dsl->app_name                 | _source
-    $caller->package               | _package
-    $caller->filename              | _filename
-    $caller->line                  | _line
     $request->id                   | _http_id
     $request->user                 | _http_user
     $request->address              | _http_client
@@ -150,9 +145,6 @@ This may change in future.
     my %hash = (
         _source => $self->app_name,
         _pid => $$,
-        _package => $caller->package,
-        _filename => $caller->filename,
-        _line => $caller->line,
     );
     if (my $request = $self->request) {
         $hash{_http_id} = $request->id;
