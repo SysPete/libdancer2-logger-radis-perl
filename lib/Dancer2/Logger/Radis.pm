@@ -6,6 +6,10 @@ package Dancer2::Logger::Radis;
 
 use Moo 2;
 use Log::Radis 0.002;
+use Carp qw(croak);
+use FindBin qw($RealBin $RealScript);
+
+my $BIN = "$RealBin/$RealScript";
 
 with 'Dancer2::Core::Role::Logger';
 
@@ -102,8 +106,6 @@ has _radis => (
         );
         if ($self->__mock) {
             $opts{redis} = $self->__mock;
-        } else {
-            die('meh');
         }
         Log::Radis->new(%opts);
     }
@@ -121,7 +123,7 @@ sub _serialize
 
 =method log
 
-    log($level, $message);
+    log($level, $message, %extras);
 
 Nothing special, just like you'd expect.
 
@@ -155,24 +157,34 @@ This may change in future.
 
 =cut
 
-    my %hash = (
-        _source => $self->app_name,
-        _pid => $$,
+    my %gelf = (
+        _source     => $self->app_name,
+        _pid        => $$,
+        _bin        => $BIN,
+        map {( '_dancer_'.lc($_) => $extras{$_} )} keys %extras
     );
+
     if (my $request = $self->request) {
-        $hash{_http_id} = $request->id;
-        $hash{_http_user} = $request->user;
-        $hash{_http_client} = $request->address;
-        $hash{_http_method} = $request->method;
-        $hash{_http_path} = $request->path;
-        $hash{_http_proto} = $request->protocol;
-        $hash{_http_referer} = $request->header('referer');
-        $hash{_http_useragent} = $request->header('user_agent');
-        if ($self->_has_session) {
-            $hash{_session_id} = $request->session->id;
+        $gelf{_http_id}         = $request->id;
+        $gelf{_http_user}       = $request->user;
+        $gelf{_http_client}     = $request->address;
+        $gelf{_http_method}     = $request->method;
+        $gelf{_http_path}       = $request->path;
+        $gelf{_http_proto}      = $request->protocol;
+        $gelf{_http_referer}    = $request->header('referer');
+        $gelf{_http_useragent}  = $request->header('user_agent');
+        if ($self->has_session) {
+            $gelf{_session_id} = $request->session->id;
         }
     }
-    $self->_radis->log($level, $message, %hash);
+
+    $self->_radis->log($level, $message, %gelf);
 }
+
+sub core    { @_ = (shift, 'core',    @_); goto &log }
+sub debug   { @_ = (shift, 'debug',   @_); goto &log }
+sub info    { @_ = (shift, 'info',    @_); goto &log }
+sub warning { @_ = (shift, 'warning', @_); goto &log }
+sub error   { @_ = (shift, 'error',   @_); goto &log }
 
 1;
