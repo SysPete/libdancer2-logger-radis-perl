@@ -181,6 +181,9 @@ This may change in future.
     $self->_radis->log($level, $message, %gelf);
 }
 
+=for Pod::Coverage core debug info warning error
+=cut
+
 sub core    { @_ = (shift, 'core',    @_); goto &log }
 sub debug   { @_ = (shift, 'debug',   @_); goto &log }
 sub info    { @_ = (shift, 'info',    @_); goto &log }
