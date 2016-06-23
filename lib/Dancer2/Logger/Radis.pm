@@ -109,6 +109,16 @@ has _radis => (
     }
 );
 
+sub _dump
+{
+    Data::Dumper->new(\@_)->Terse(1)->Purity(1)->Indent(0)->Sortkeys(1)->Dump()
+}
+
+sub _serialize
+{
+    map { ref $_ ? _dump($_) : $_ } @_
+}
+
 =method log
 
     log($level, $message);
@@ -120,7 +130,8 @@ Nothing special, just like you'd expect.
 sub log
 {
     my $self = shift;
-    my ($level, $message) = @_;
+    my ($level, @args) = @_;
+    my ($message, %extras) = map { _serialize($_) } @args;
 
 =head1 GELF MESSAGE
 
