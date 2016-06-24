@@ -1,6 +1,8 @@
 Revision history for Dancer2-Logger-Radis
 
 {{$NEXT}}
+
+0.002 2016-06-24
  - Remove stack trace
 
 0.001 2016-05-01
